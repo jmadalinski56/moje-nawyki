@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moje nawyki</title>
+<style>
+  :root {
+    --tlo: #f6f3ec;
+    --karta: #ffffff;
+    --tekst: #1f2a24;
+    --szary: #5b665f;
+    --zielony: #2e7d4f;
+    --zielony-jasny: #dff1e5;
+    --ramka: #d9d4c7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--tlo);
+    color: var(--tekst);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 22px;
+    line-height: 1.4;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 40px; margin: 0 0 4px; }
+  h2 { font-size: 28px; margin: 36px 0 12px; }
+  .data-pasek {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin: 16px 0 20px;
+  }
+  .data { font-size: 26px; font-weight: 700; text-align: center; flex: 1; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 14px;
+    border: 2px solid var(--ramka); background: var(--karta); color: var(--tekst);
+    padding: 10px 18px; min-height: 56px;
+  }
+  button:hover { border-color: var(--zielony); }
+  button:focus-visible { outline: 4px solid #f0b400; outline-offset: 2px; }
+  .nawyk {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--karta); border: 3px solid var(--ramka);
+    border-radius: 18px; padding: 16px 18px; margin-bottom: 14px;
+    width: 100%; text-align: left; min-height: 84px;
+  }
+  .nawyk.zrobione { background: var(--zielony-jasny); border-color: var(--zielony); }
+  .ikona { font-size: 40px; width: 52px; text-align: center; flex-shrink: 0; }
+  .opis { flex: 1; }
+  .nazwa { font-weight: 700; font-size: 24px; }
+  .podpis { color: var(--szary); font-size: 19px; }
+  .znak {
+    width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+    border: 3px solid var(--ramka); display: flex; align-items: center;
+    justify-content: center; font-size: 32px; color: #fff;
+  }
+  .zrobione .znak { background: var(--zielony); border-color: var(--zielony); }
+  .licznik { display: flex; align-items: center; gap: 10px; }
+  .licznik button { width: 56px; padding: 0; font-size: 30px; font-weight: 700; }
+  .licznik .ile { font-size: 28px; font-weight: 700; min-width: 64px; text-align: center; }
+  .wynik {
+    background: var(--karta); border-radius: 18px; padding: 18px;
+    font-size: 26px; text-align: center; border: 3px solid var(--ramka);
+  }
+  .wynik strong { color: var(--zielony); font-size: 32px; }
+  table { width: 100%; border-collapse: collapse; background: var(--karta);
+    border-radius: 18px; overflow: hidden; font-size: 20px; }
+  th, td { padding: 10px 4px; text-align: center; border-bottom: 1px solid var(--ramka); }
+  th:first-child, td:first-child { text-align: left; padding-left: 12px; }
+  td.tak { color: var(--zielony); font-weight: 700; font-size: 24px; }
+  td.nie { color: #b9b3a5; }
+  .dzis-kol { background: #fff7d6; }
+  .stopka { color: var(--szary); font-size: 18px; margin-top: 28px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🌿 Moje nawyki</h1>
+  <div class="podpis">Kliknij to, co dziś zrobiłeś. Program sam zapamięta.</div>
+
+  <div class="data-pasek">
+    <button id="wczoraj" aria-label="Poprzedni dzień">◀ Wcześniej</button>
+    <div class="data" id="data"></div>
+    <button id="jutro" aria-label="Następny dzień">Później ▶</button>
+  </div>
+
+  <div id="lista"></div>
+
+  <div class="wynik" id="wynik"></div>
+
+  <h2>Ostatnie 7 dni</h2>
+  <table id="tydzien"></table>
+
+  <p class="stopka">Dane zapisują się tylko na tym urządzeniu, w tej przeglądarce.
+  Nikt inny ich nie widzi. Telefon i komputer mają osobne zapiski.</p>
+</main>
+
+<script>
+  // Lista nawyków. Żeby dodać nowy, dopisz kolejną linijkę.
+  const NAWYKI = [
+    { id: "spacer",   ikona: "🚶", nazwa: "Spacer",               podpis: "Co najmniej 20 minut" },
+    { id: "woda",     ikona: "💧", nazwa: "Woda i ciepłe napoje", podpis: "Cel: 8 szklanek", cel: 8 },
+    { id: "cwiczenia",ikona: "🤸", nazwa: "Ćwiczenia",            podpis: "Rozciąganie lub gimnastyka" },
+    { id: "sen",      ikona: "😴", nazwa: "Dobry sen",            podpis: "Spałem 7 godzin lub więcej" },
+    { id: "nauka",    ikona: "📚", nazwa: "Nauka angielskiego",   podpis: "Choćby 10 minut" },
+    { id: "cieplo",   ikona: "🧣", nazwa: "Ciepło ubrany",        podpis: "Szalik, czapka, rękawiczki" },
+    { id: "leki",     ikona: "💊", nazwa: "Lekarstwa wzięte",     podpis: "Wszystkie na dziś" },
+    { id: "rozmowa",  ikona: "☎️", nazwa: "Rozmowa z kimś bliskim", podpis: "Telefon, spotkanie lub wideo" }
+  ];
+
+  const KLUCZ = "moje-nawyki-v1";
+  let dane = {};
+  try { dane = JSON.parse(localStorage.getItem(KLUCZ)) || {}; } catch (e) { dane = {}; }
+  function zapisz() { try { localStorage.setItem(KLUCZ, JSON.stringify(dane)); } catch (e) {} }
+
+  function klucz(d) {
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dz = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + dz;
+  }
+  const dzisiaj = new Date(); dzisiaj.setHours(12, 0, 0, 0);
+  let wybrany = new Date(dzisiaj);
+
+  function dzien(k) { return dane[k] || (dane[k] = {}); }
+  function zrobione(n, k) {
+    const v = (dane[k] || {})[n.id];
+    return n.cel ? (v || 0) >= n.cel : !!v;
+  }
+
+  function opisDaty(d) {
+    const tekst = d.toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
+    const roznica = Math.round((dzisiaj - d) / 86400000);
+    if (roznica === 0) return "Dziś, " + tekst;
+    if (roznica === 1) return "Wczoraj, " + tekst;
+    return tekst.charAt(0).toUpperCase() + tekst.slice(1);
+  }
+
+  function rysuj() {
+    const k = klucz(wybrany);
+    document.getElementById("data").textContent = opisDaty(wybrany);
+    document.getElementById("jutro").disabled = klucz(wybrany) === klucz(dzisiaj);
+    document.getElementById("jutro").style.visibility =
+      klucz(wybrany) === klucz(dzisiaj) ? "hidden" : "visible";
+
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+    NAWYKI.forEach(n => {
+      const gotowe = zrobione(n, k);
+      if (n.cel) {
+        const ile = (dane[k] || {})[n.id] || 0;
+        const el = document.createElement("div");
+        el.className = "nawyk" + (gotowe ? " zrobione" : "");
+        el.innerHTML =
+          '<span class="ikona">' + n.ikona + '</span>' +
+          '<span class="opis"><div class="nazwa">' + n.nazwa + '</div>' +
+          '<div class="podpis">' + n.podpis + '</div></span>' +
+          '<span class="licznik"><button aria-label="Mniej">−</button>' +
+          '<span class="ile">' + ile + '/' + n.cel + '</span>' +
+          '<button aria-label="Więcej">+</button></span>';
+        const [minus, plus] = el.querySelectorAll("button");
+        minus.onclick = () => { dzien(k)[n.id] = Math.max(0, ile - 1); zapisz(); rysuj(); };
+        plus.onclick  = () => { dzien(k)[n.id] = Math.min(20, ile + 1); zapisz(); rysuj(); };
+        lista.appendChild(el);
+      } else {
+        const el = document.createElement("button");
+        el.className = "nawyk" + (gotowe ? " zrobione" : "");
+        el.setAttribute("aria-pressed", gotowe);
+        el.innerHTML =
+          '<span class="ikona">' + n.ikona + '</span>' +
+          '<span class="opis"><div class="nazwa">' + n.nazwa + '</div>' +
+          '<div class="podpis">' + n.podpis + '</div></span>' +
+          '<span class="znak">' + (gotowe ? "✓" : "") + '</span>';
+        el.onclick = () => { dzien(k)[n.id] = !gotowe; zapisz(); rysuj(); };
+        lista.appendChild(el);
+      }
+    });
+
+    const ileZrobionych = NAWYKI.filter(n => zrobione(n, k)).length;
+    let pochwala = "Każdy krok się liczy!";
+    if (ileZrobionych === NAWYKI.length) pochwala = "🎉 Wszystko zrobione. Brawo!";
+    else if (ileZrobionych >= NAWYKI.length / 2) pochwala = "👍 Świetnie Ci idzie!";
+    document.getElementById("wynik").innerHTML =
+      "Zrobione: <strong>" + ileZrobionych + " z " + NAWYKI.length + "</strong><br>" + pochwala;
+
+    rysujTydzien();
+  }
+
+  function rysujTydzien() {
+    const dni = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(dzisiaj); d.setDate(d.getDate() - i); dni.push(d);
+    }
+    let html = "<tr><th></th>" + dni.map(d =>
+      '<th class="' + (klucz(d) === klucz(dzisiaj) ? "dzis-kol" : "") + '">' +
+      d.toLocaleDateString("pl-PL", { weekday: "short" }) + "<br>" + d.getDate() + "</th>").join("") + "</tr>";
+    NAWYKI.forEach(n => {
+      html += "<tr><td>" + n.ikona + "</td>" + dni.map(d => {
+        const t = zrobione(n, klucz(d));
+        const kl = (t ? "tak" : "nie") + (klucz(d) === klucz(dzisiaj) ? " dzis-kol" : "");
+        return '<td class="' + kl + '">' + (t ? "✓" : "·") + "</td>";
+      }).join("") + "</tr>";
+    });
+    document.getElementById("tydzien").innerHTML = html;
+  }
+
+  document.getElementById("wczoraj").onclick = () => { wybrany.setDate(wybrany.getDate() - 1); rysuj(); };
+  document.getElementById("jutro").onclick = () => {
+    if (klucz(wybrany) !== klucz(dzisiaj)) { wybrany.setDate(wybrany.getDate() + 1); rysuj(); }
+  };
+
+  rysuj();
+</script>
+</body>
+</html>
