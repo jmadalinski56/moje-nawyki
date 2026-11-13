@@ -13,6 +13,7 @@
     --zielony: #2e7d4f;
     --zielony-jasny: #dff1e5;
     --ramka: #d9d4c7;
+    --zolty: #fff7d6;
   }
   * { box-sizing: border-box; }
   body {
@@ -24,107 +25,184 @@
     line-height: 1.4;
   }
   main { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
-  h1 { font-size: 40px; margin: 0 0 4px; }
+  h1 { font-size: 38px; margin: 0; }
   h2 { font-size: 28px; margin: 36px 0 12px; }
+  .naglowek { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .data-pasek {
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; margin: 16px 0 20px;
   }
-  .data { font-size: 26px; font-weight: 700; text-align: center; flex: 1; }
+  .data { font-size: 24px; font-weight: 700; text-align: center; flex: 1; }
   button {
     font: inherit; cursor: pointer; border-radius: 14px;
     border: 2px solid var(--ramka); background: var(--karta); color: var(--tekst);
-    padding: 10px 18px; min-height: 56px;
+    padding: 10px 16px; min-height: 56px;
   }
   button:hover { border-color: var(--zielony); }
   button:focus-visible { outline: 4px solid #f0b400; outline-offset: 2px; }
+  button.glowny { background: var(--zielony); color: #fff; border-color: var(--zielony); font-weight: 700; }
   .nawyk {
-    display: flex; align-items: center; gap: 16px;
+    display: flex; align-items: center; gap: 14px;
     background: var(--karta); border: 3px solid var(--ramka);
-    border-radius: 18px; padding: 16px 18px; margin-bottom: 14px;
+    border-radius: 18px; padding: 14px 16px; margin-bottom: 14px;
     width: 100%; text-align: left; min-height: 84px;
   }
   .nawyk.zrobione { background: var(--zielony-jasny); border-color: var(--zielony); }
-  .ikona { font-size: 40px; width: 52px; text-align: center; flex-shrink: 0; }
-  .opis { flex: 1; }
+  .ikona { font-size: 38px; width: 50px; text-align: center; flex-shrink: 0; }
+  .opis { flex: 1; min-width: 0; }
   .nazwa { font-weight: 700; font-size: 24px; }
   .podpis { color: var(--szary); font-size: 19px; }
+  .tydzien-info { font-size: 18px; font-weight: 700; color: var(--szary); margin-top: 2px; }
+  .tydzien-info.cel { color: var(--zielony); }
   .znak {
     width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
     border: 3px solid var(--ramka); display: flex; align-items: center;
     justify-content: center; font-size: 32px; color: #fff;
   }
   .zrobione .znak { background: var(--zielony); border-color: var(--zielony); }
-  .licznik { display: flex; align-items: center; gap: 10px; }
+  .licznik { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .licznik button { width: 56px; padding: 0; font-size: 30px; font-weight: 700; }
-  .licznik .ile { font-size: 28px; font-weight: 700; min-width: 64px; text-align: center; }
+  .licznik .ile { font-size: 26px; font-weight: 700; min-width: 70px; text-align: center; }
   .wynik {
     background: var(--karta); border-radius: 18px; padding: 18px;
-    font-size: 26px; text-align: center; border: 3px solid var(--ramka);
+    font-size: 24px; text-align: center; border: 3px solid var(--ramka);
   }
-  .wynik strong { color: var(--zielony); font-size: 32px; }
-  table { width: 100%; border-collapse: collapse; background: var(--karta);
-    border-radius: 18px; overflow: hidden; font-size: 20px; }
+  .wynik strong { color: var(--zielony); font-size: 30px; }
+  .tabela-ramka { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--karta); font-size: 20px; }
   th, td { padding: 10px 4px; text-align: center; border-bottom: 1px solid var(--ramka); }
-  th:first-child, td:first-child { text-align: left; padding-left: 12px; }
+  th:first-child, td:first-child { text-align: left; padding-left: 10px; }
   td.tak { color: var(--zielony); font-weight: 700; font-size: 24px; }
   td.nie { color: #b9b3a5; }
-  .dzis-kol { background: #fff7d6; }
+  td.cel-ok { color: var(--zielony); font-weight: 700; }
+  .dzis-kol { background: var(--zolty); }
   .stopka { color: var(--szary); font-size: 18px; margin-top: 28px; }
+  /* Ustawienia */
+  .ust {
+    background: var(--karta); border: 3px solid var(--ramka); border-radius: 18px;
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  .ust-tytul { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 24px; margin-bottom: 8px; }
+  .ust-wiersz { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 6px 0; }
+  .ust-wiersz .etykieta { color: var(--szary); }
+  .ust.wylaczony { opacity: 0.6; }
+  .ukryty { display: none; }
 </style>
 </head>
 <body>
 <main>
-  <h1>🌿 Moje nawyki</h1>
-  <div class="podpis">Kliknij to, co dziś zrobiłeś. Program sam zapamięta.</div>
 
-  <div class="data-pasek">
-    <button id="wczoraj" aria-label="Poprzedni dzień">◀ Wcześniej</button>
-    <div class="data" id="data"></div>
-    <button id="jutro" aria-label="Następny dzień">Później ▶</button>
-  </div>
+  <!-- ===== EKRAN GŁÓWNY ===== -->
+  <section id="ekran-glowny">
+    <div class="naglowek">
+      <h1>🌿 Moje nawyki</h1>
+      <button id="otworz-ustawienia">⚙️ Ustawienia</button>
+    </div>
+    <div class="podpis">Kliknij to, co dziś zrobiłeś. Program sam zapamięta.</div>
 
-  <div id="lista"></div>
+    <div class="data-pasek">
+      <button id="wczoraj" aria-label="Poprzedni dzień">◀ Wcześniej</button>
+      <div class="data" id="data"></div>
+      <button id="jutro" aria-label="Następny dzień">Później ▶</button>
+    </div>
 
-  <div class="wynik" id="wynik"></div>
+    <div id="lista"></div>
+    <div class="wynik" id="wynik"></div>
 
-  <h2>Ostatnie 7 dni</h2>
-  <table id="tydzien"></table>
+    <h2>Ten tydzień</h2>
+    <div class="tabela-ramka"><table id="tydzien"></table></div>
 
-  <p class="stopka">Dane zapisują się tylko na tym urządzeniu, w tej przeglądarce.
-  Nikt inny ich nie widzi. Telefon i komputer mają osobne zapiski.</p>
+    <p class="stopka">Dane zapisują się tylko na tym urządzeniu, w tej przeglądarce.
+    Nikt inny ich nie widzi. Telefon i komputer mają osobne zapiski.</p>
+  </section>
+
+  <!-- ===== EKRAN USTAWIEŃ ===== -->
+  <section id="ekran-ustawien" class="ukryty">
+    <div class="naglowek">
+      <h1>⚙️ Ustawienia</h1>
+      <button class="glowny" id="zamknij-ustawienia">✓ Gotowe</button>
+    </div>
+    <p class="podpis">Przyciskami <b>−</b> i <b>+</b> ustaw, ile razy w tygodniu chcesz
+    coś robić i jak długo. Ustaw „0 razy”, żeby ukryć nawyk.</p>
+    <div id="lista-ustawien"></div>
+    <button id="przywroc">↺ Przywróć ustawienia początkowe</button>
+  </section>
+
 </main>
 
 <script>
-  // Lista nawyków. Żeby dodać nowy, dopisz kolejną linijkę.
+  // ---------- Odmiana słów po polsku (1 minuta, 2 minuty, 5 minut) ----------
+  function odmien(n, jeden, kilka, wiele) {
+    if (n === 1) return jeden;
+    const r10 = n % 10, r100 = n % 100;
+    if (r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14)) return kilka;
+    return wiele;
+  }
+  const MINUT = n => n + " " + odmien(n, "minuta", "minuty", "minut");
+
+  // ---------- Lista nawyków i ustawienia początkowe ----------
+  // razy  = ile razy w tygodniu (7 = codziennie)
+  // ilosc = ile minut / szklanek / godzin (można zmieniać w Ustawieniach)
   const NAWYKI = [
-    { id: "spacer",   ikona: "🚶", nazwa: "Spacer",               podpis: "Co najmniej 20 minut" },
-    { id: "woda",     ikona: "💧", nazwa: "Woda i ciepłe napoje", podpis: "Cel: 8 szklanek", cel: 8 },
-    { id: "cwiczenia",ikona: "🤸", nazwa: "Ćwiczenia",            podpis: "Rozciąganie lub gimnastyka" },
-    { id: "sen",      ikona: "😴", nazwa: "Dobry sen",            podpis: "Spałem 7 godzin lub więcej" },
-    { id: "nauka",    ikona: "📚", nazwa: "Nauka angielskiego",   podpis: "Choćby 10 minut" },
-    { id: "cieplo",   ikona: "🧣", nazwa: "Ciepło ubrany",        podpis: "Szalik, czapka, rękawiczki" },
-    { id: "leki",     ikona: "💊", nazwa: "Lekarstwa wzięte",     podpis: "Wszystkie na dziś" },
-    { id: "rozmowa",  ikona: "☎️", nazwa: "Rozmowa z kimś bliskim", podpis: "Telefon, spotkanie lub wideo" }
+    { id: "spacer",    ikona: "🚶", nazwa: "Spacer", razy: 7,
+      ilosc: { wart: 20, min: 5, max: 180, krok: 5, opis: "Długość", pokaz: MINUT },
+      podpis: w => "Co najmniej " + MINUT(w) },
+    { id: "woda",      ikona: "💧", nazwa: "Woda i ciepłe napoje", razy: 7, licznik: true,
+      ilosc: { wart: 8, min: 1, max: 15, krok: 1, opis: "Ile szklanek",
+               pokaz: n => n + " " + odmien(n, "szklanka", "szklanki", "szklanek") },
+      podpis: w => "Cel: " + w + " " + odmien(w, "szklanka", "szklanki", "szklanek") },
+    { id: "cwiczenia", ikona: "🤸", nazwa: "Ćwiczenia", razy: 7,
+      ilosc: { wart: 15, min: 5, max: 120, krok: 5, opis: "Długość", pokaz: MINUT },
+      podpis: w => "Rozciąganie lub gimnastyka, " + MINUT(w) },
+    { id: "basen",     ikona: "🏊", nazwa: "Basen i sauna", razy: 2,
+      ilosc: { wart: 60, min: 15, max: 240, krok: 15, opis: "Długość", pokaz: MINUT },
+      podpis: w => "Około " + MINUT(w) },
+    { id: "silownia",  ikona: "🏋️", nazwa: "Siłownia", razy: 2,
+      ilosc: { wart: 45, min: 15, max: 180, krok: 15, opis: "Długość", pokaz: MINUT },
+      podpis: w => "Około " + MINUT(w) },
+    { id: "tenis",     ikona: "🏓", nazwa: "Tenis stołowy", razy: 3,
+      ilosc: { wart: 60, min: 15, max: 240, krok: 15, opis: "Długość", pokaz: MINUT },
+      podpis: w => "Około " + MINUT(w) },
+    { id: "sen",       ikona: "😴", nazwa: "Dobry sen", razy: 7,
+      ilosc: { wart: 7, min: 5, max: 10, krok: 1, opis: "Ile godzin",
+               pokaz: n => n + " " + odmien(n, "godzina", "godziny", "godzin") },
+      podpis: w => "Spałem " + w + " " + odmien(w, "godzinę", "godziny", "godzin") + " lub więcej" },
+    { id: "nauka",     ikona: "📚", nazwa: "Nauka angielskiego", razy: 7,
+      ilosc: { wart: 10, min: 5, max: 120, krok: 5, opis: "Długość", pokaz: MINUT },
+      podpis: w => "Choćby " + MINUT(w) },
+    { id: "cieplo",    ikona: "🧣", nazwa: "Ciepło ubrany", razy: 7,
+      podpis: () => "Szalik, czapka, rękawiczki" },
+    { id: "leki",      ikona: "💊", nazwa: "Lekarstwa i suplementy", razy: 7,
+      podpis: () => "Wszystkie na dziś" },
+    { id: "rozmowa",   ikona: "☎️", nazwa: "Rozmowa z kimś bliskim", razy: 7,
+      podpis: () => "Telefon, spotkanie lub wideo" }
   ];
 
+  // ---------- Zapisywanie w pamięci przeglądarki ----------
   const KLUCZ = "moje-nawyki-v1";
-  let dane = {};
-  try { dane = JSON.parse(localStorage.getItem(KLUCZ)) || {}; } catch (e) { dane = {}; }
-  function zapisz() { try { localStorage.setItem(KLUCZ, JSON.stringify(dane)); } catch (e) {} }
+  const KLUCZ_UST = "moje-nawyki-ustawienia-v1";
+  function wczytaj(k) { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } }
+  function zachowaj(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  let dane = wczytaj(KLUCZ);
+  let ust = wczytaj(KLUCZ_UST);
+  const zapisz = () => zachowaj(KLUCZ, dane);
+  const zapiszUst = () => zachowaj(KLUCZ_UST, ust);
 
+  const razy  = n => (ust[n.id] && ust[n.id].razy  !== undefined) ? ust[n.id].razy  : n.razy;
+  const ilosc = n => n.ilosc ? ((ust[n.id] && ust[n.id].ilosc !== undefined) ? ust[n.id].ilosc : n.ilosc.wart) : null;
+  const aktywne = () => NAWYKI.filter(n => razy(n) > 0);
+
+  // ---------- Daty ----------
   function klucz(d) {
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const dz = String(d.getDate()).padStart(2, "0");
-    return d.getFullYear() + "-" + m + "-" + dz;
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
   const dzisiaj = new Date(); dzisiaj.setHours(12, 0, 0, 0);
   let wybrany = new Date(dzisiaj);
 
-  function dzien(k) { return dane[k] || (dane[k] = {}); }
-  function zrobione(n, k) {
-    const v = (dane[k] || {})[n.id];
-    return n.cel ? (v || 0) >= n.cel : !!v;
+  function dniTygodnia(d) {          // poniedziałek ... niedziela
+    const pon = new Date(d);
+    pon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return Array.from({ length: 7 }, (_, i) => { const x = new Date(pon); x.setDate(pon.getDate() + i); return x; });
   }
 
   function opisDaty(d) {
@@ -135,74 +213,146 @@
     return tekst.charAt(0).toUpperCase() + tekst.slice(1);
   }
 
+  // ---------- Czy nawyk zrobiony ----------
+  function dzien(k) { return dane[k] || (dane[k] = {}); }
+  function zrobione(n, k) {
+    const v = (dane[k] || {})[n.id];
+    return n.licznik ? (v || 0) >= ilosc(n) : !!v;
+  }
+  function ileWTygodniu(n, d) {
+    return dniTygodnia(d).filter(x => x <= dzisiaj && zrobione(n, klucz(x))).length;
+  }
+
+  // ---------- Ekran główny ----------
   function rysuj() {
     const k = klucz(wybrany);
+    const toDzis = k === klucz(dzisiaj);
     document.getElementById("data").textContent = opisDaty(wybrany);
-    document.getElementById("jutro").disabled = klucz(wybrany) === klucz(dzisiaj);
-    document.getElementById("jutro").style.visibility =
-      klucz(wybrany) === klucz(dzisiaj) ? "hidden" : "visible";
+    const jutro = document.getElementById("jutro");
+    jutro.disabled = toDzis;
+    jutro.style.visibility = toDzis ? "hidden" : "visible";
 
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
-    NAWYKI.forEach(n => {
+    aktywne().forEach(n => {
       const gotowe = zrobione(n, k);
-      if (n.cel) {
+      const r = razy(n);
+      const wTyg = ileWTygodniu(n, wybrany);
+      const infoTyg = r >= 7
+        ? '<div class="tydzien-info">Codziennie</div>'
+        : '<div class="tydzien-info' + (wTyg >= r ? ' cel' : '') + '">W tym tygodniu: ' + wTyg + ' z ' + r +
+          (wTyg >= r ? ' ✓ cel osiągnięty' : '') + '</div>';
+      const opis =
+        '<span class="ikona">' + n.ikona + '</span>' +
+        '<span class="opis"><div class="nazwa">' + n.nazwa + '</div>' +
+        '<div class="podpis">' + n.podpis(ilosc(n)) + '</div>' + infoTyg + '</span>';
+
+      if (n.licznik) {
         const ile = (dane[k] || {})[n.id] || 0;
         const el = document.createElement("div");
         el.className = "nawyk" + (gotowe ? " zrobione" : "");
-        el.innerHTML =
-          '<span class="ikona">' + n.ikona + '</span>' +
-          '<span class="opis"><div class="nazwa">' + n.nazwa + '</div>' +
-          '<div class="podpis">' + n.podpis + '</div></span>' +
+        el.innerHTML = opis +
           '<span class="licznik"><button aria-label="Mniej">−</button>' +
-          '<span class="ile">' + ile + '/' + n.cel + '</span>' +
+          '<span class="ile">' + ile + '/' + ilosc(n) + '</span>' +
           '<button aria-label="Więcej">+</button></span>';
         const [minus, plus] = el.querySelectorAll("button");
         minus.onclick = () => { dzien(k)[n.id] = Math.max(0, ile - 1); zapisz(); rysuj(); };
-        plus.onclick  = () => { dzien(k)[n.id] = Math.min(20, ile + 1); zapisz(); rysuj(); };
+        plus.onclick  = () => { dzien(k)[n.id] = Math.min(30, ile + 1); zapisz(); rysuj(); };
         lista.appendChild(el);
       } else {
         const el = document.createElement("button");
         el.className = "nawyk" + (gotowe ? " zrobione" : "");
         el.setAttribute("aria-pressed", gotowe);
-        el.innerHTML =
-          '<span class="ikona">' + n.ikona + '</span>' +
-          '<span class="opis"><div class="nazwa">' + n.nazwa + '</div>' +
-          '<div class="podpis">' + n.podpis + '</div></span>' +
-          '<span class="znak">' + (gotowe ? "✓" : "") + '</span>';
+        el.innerHTML = opis + '<span class="znak">' + (gotowe ? "✓" : "") + '</span>';
         el.onclick = () => { dzien(k)[n.id] = !gotowe; zapisz(); rysuj(); };
         lista.appendChild(el);
       }
     });
 
-    const ileZrobionych = NAWYKI.filter(n => zrobione(n, k)).length;
+    const akt = aktywne();
+    const dzis = akt.filter(n => zrobione(n, k)).length;
+    const celeTyg = akt.filter(n => ileWTygodniu(n, wybrany) >= razy(n)).length;
     let pochwala = "Każdy krok się liczy!";
-    if (ileZrobionych === NAWYKI.length) pochwala = "🎉 Wszystko zrobione. Brawo!";
-    else if (ileZrobionych >= NAWYKI.length / 2) pochwala = "👍 Świetnie Ci idzie!";
+    if (dzis >= 6) pochwala = "🎉 Wspaniały dzień. Brawo!";
+    else if (dzis >= 3) pochwala = "👍 Świetnie Ci idzie!";
     document.getElementById("wynik").innerHTML =
-      "Zrobione: <strong>" + ileZrobionych + " z " + NAWYKI.length + "</strong><br>" + pochwala;
+      (toDzis ? "Dziś" : "Tego dnia") + " zrobione: <strong>" + dzis + "</strong><br>" +
+      "Cele tygodnia osiągnięte: <strong>" + celeTyg + " z " + akt.length + "</strong><br>" + pochwala;
 
     rysujTydzien();
   }
 
   function rysujTydzien() {
-    const dni = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(dzisiaj); d.setDate(d.getDate() - i); dni.push(d);
-    }
+    const dni = dniTygodnia(wybrany);
     let html = "<tr><th></th>" + dni.map(d =>
       '<th class="' + (klucz(d) === klucz(dzisiaj) ? "dzis-kol" : "") + '">' +
-      d.toLocaleDateString("pl-PL", { weekday: "short" }) + "<br>" + d.getDate() + "</th>").join("") + "</tr>";
-    NAWYKI.forEach(n => {
+      d.toLocaleDateString("pl-PL", { weekday: "short" }) + "<br>" + d.getDate() + "</th>").join("") +
+      "<th>Cel</th></tr>";
+    aktywne().forEach(n => {
+      const wTyg = ileWTygodniu(n, wybrany), r = razy(n);
       html += "<tr><td>" + n.ikona + "</td>" + dni.map(d => {
-        const t = zrobione(n, klucz(d));
+        const przyszly = d > dzisiaj;
+        const t = !przyszly && zrobione(n, klucz(d));
         const kl = (t ? "tak" : "nie") + (klucz(d) === klucz(dzisiaj) ? " dzis-kol" : "");
-        return '<td class="' + kl + '">' + (t ? "✓" : "·") + "</td>";
-      }).join("") + "</tr>";
+        return '<td class="' + kl + '">' + (przyszly ? "" : (t ? "✓" : "·")) + "</td>";
+      }).join("") +
+      '<td class="' + (wTyg >= r ? "cel-ok" : "") + '">' + wTyg + "/" + r + "</td></tr>";
     });
     document.getElementById("tydzien").innerHTML = html;
   }
 
+  // ---------- Ekran ustawień ----------
+  function zmienUst(n, pole, wartosc) {
+    ust[n.id] = ust[n.id] || {};
+    ust[n.id][pole] = wartosc;
+    zapiszUst();
+    rysujUstawienia();
+  }
+
+  function wierszPlusMinus(etykieta, tekst, onMinus, onPlus) {
+    const w = document.createElement("div");
+    w.className = "ust-wiersz";
+    w.innerHTML = '<span class="etykieta">' + etykieta + '</span>' +
+      '<span class="licznik"><button aria-label="Mniej">−</button>' +
+      '<span class="ile">' + tekst + '</span>' +
+      '<button aria-label="Więcej">+</button></span>';
+    const [minus, plus] = w.querySelectorAll("button");
+    minus.onclick = onMinus; plus.onclick = onPlus;
+    return w;
+  }
+
+  function rysujUstawienia() {
+    const lista = document.getElementById("lista-ustawien");
+    lista.innerHTML = "";
+    NAWYKI.forEach(n => {
+      const r = razy(n);
+      const box = document.createElement("div");
+      box.className = "ust" + (r === 0 ? " wylaczony" : "");
+      box.innerHTML = '<div class="ust-tytul"><span class="ikona">' + n.ikona + '</span>' + n.nazwa + '</div>';
+      const tekstRazy = r === 0 ? "ukryty" : (r === 7 ? "codziennie" : r + " " + odmien(r, "raz", "razy", "razy"));
+      box.appendChild(wierszPlusMinus("Ile razy w tygodniu", tekstRazy,
+        () => zmienUst(n, "razy", Math.max(0, r - 1)),
+        () => zmienUst(n, "razy", Math.min(7, r + 1))));
+      if (n.ilosc) {
+        const v = ilosc(n), o = n.ilosc;
+        box.appendChild(wierszPlusMinus(o.opis, o.pokaz(v),
+          () => zmienUst(n, "ilosc", Math.max(o.min, v - o.krok)),
+          () => zmienUst(n, "ilosc", Math.min(o.max, v + o.krok))));
+      }
+      lista.appendChild(box);
+    });
+  }
+
+  function pokaz(ekran) {
+    document.getElementById("ekran-glowny").classList.toggle("ukryty", ekran !== "glowny");
+    document.getElementById("ekran-ustawien").classList.toggle("ukryty", ekran !== "ustawienia");
+    window.scrollTo(0, 0);
+    if (ekran === "glowny") rysuj(); else rysujUstawienia();
+  }
+
+  document.getElementById("otworz-ustawienia").onclick = () => pokaz("ustawienia");
+  document.getElementById("zamknij-ustawienia").onclick = () => pokaz("glowny");
+  document.getElementById("przywroc").onclick = () => { ust = {}; zapiszUst(); rysujUstawienia(); };
   document.getElementById("wczoraj").onclick = () => { wybrany.setDate(wybrany.getDate() - 1); rysuj(); };
   document.getElementById("jutro").onclick = () => {
     if (klucz(wybrany) !== klucz(dzisiaj)) { wybrany.setDate(wybrany.getDate() + 1); rysuj(); }
