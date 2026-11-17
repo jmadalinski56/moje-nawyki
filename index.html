@@ -87,6 +87,22 @@
   .ust-wiersz .etykieta { color: var(--szary); }
   .ust.wylaczony { opacity: 0.6; }
   .ukryty { display: none; }
+  /* Dodawanie nawyku */
+  .dodaj-nawyk { width: 100%; margin: 4px 0 18px; border-style: dashed; font-weight: 700; color: var(--zielony); }
+  .pole { margin: 18px 0; }
+  .pole label { display: block; font-weight: 700; margin-bottom: 6px; }
+  .pole input[type=text] {
+    font: inherit; width: 100%; padding: 12px 14px; min-height: 56px;
+    border: 2px solid var(--ramka); border-radius: 14px; background: var(--karta); color: var(--tekst);
+  }
+  .pole input[type=text]:focus { outline: 4px solid #f0b400; outline-offset: 2px; }
+  .ikony { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+  .ikony button { font-size: 32px; padding: 6px; }
+  .ikony button[aria-pressed=true] { background: var(--zielony-jasny); border-color: var(--zielony); border-width: 3px; }
+  .blad { color: #b3261e; font-weight: 700; margin: 8px 0; }
+  .przyciski { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+  .przyciski button { flex: 1; }
+  button.usun { color: #b3261e; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -107,6 +123,7 @@
     </div>
 
     <div id="lista"></div>
+    <button class="dodaj-nawyk" id="dodaj-z-glownego">➕ Dodaj nowy nawyk</button>
     <div class="wynik" id="wynik"></div>
 
     <h2>Ten tydzień</h2>
@@ -124,8 +141,37 @@
     </div>
     <p class="podpis">Przyciskami <b>−</b> i <b>+</b> ustaw, ile razy w tygodniu chcesz
     coś robić i jak długo. Ustaw „0 razy”, żeby ukryć nawyk.</p>
+    <button class="dodaj-nawyk" id="dodaj-z-ustawien">➕ Dodaj nowy nawyk</button>
     <div id="lista-ustawien"></div>
     <button id="przywroc">↺ Przywróć ustawienia początkowe</button>
+    <p class="podpis">Przywrócenie ustawień nie usuwa nawyków, które dodałeś sam.</p>
+  </section>
+
+  <!-- ===== EKRAN DODAWANIA NAWYKU ===== -->
+  <section id="ekran-dodaj" class="ukryty">
+    <div class="naglowek">
+      <h1>➕ Nowy nawyk</h1>
+    </div>
+    <form id="formularz-nawyku" autocomplete="off">
+      <div class="pole">
+        <label for="nowa-nazwa">Nazwa nawyku</label>
+        <input type="text" id="nowa-nazwa" maxlength="40" placeholder="np. Czytanie książki">
+      </div>
+      <div class="pole">
+        <label for="nowy-opis">Krótki opis (nie trzeba)</label>
+        <input type="text" id="nowy-opis" maxlength="60" placeholder="np. Choćby 10 stron">
+      </div>
+      <div class="pole">
+        <label id="etykieta-ikony">Wybierz obrazek</label>
+        <div class="ikony" id="wybor-ikony" role="group" aria-labelledby="etykieta-ikony"></div>
+      </div>
+      <div class="pole" id="pole-razy"></div>
+      <div class="blad ukryty" id="blad-nawyku" role="alert"></div>
+      <div class="przyciski">
+        <button type="button" id="anuluj-dodawanie">✕ Anuluj</button>
+        <button type="submit" class="glowny">✓ Dodaj nawyk</button>
+      </div>
+    </form>
   </section>
 
 </main>
@@ -188,9 +234,20 @@
   const zapisz = () => zachowaj(KLUCZ, dane);
   const zapiszUst = () => zachowaj(KLUCZ_UST, ust);
 
+  // ---------- Nawyki dodane przez użytkownika ----------
+  const KLUCZ_WLASNE = "moje-nawyki-wlasne-v1";
+  let wlasne = (() => { try { const v = JSON.parse(localStorage.getItem(KLUCZ_WLASNE)); return Array.isArray(v) ? v : []; } catch (e) { return []; } })();
+  const zapiszWlasne = () => zachowaj(KLUCZ_WLASNE, wlasne);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  function zWlasnego(w) {
+    return { id: w.id, ikona: w.ikona, nazwa: esc(w.nazwa), razy: w.razy, wlasny: true,
+             podpis: () => w.opis ? esc(w.opis) : "Mój nawyk" };
+  }
+  const wszystkie = () => NAWYKI.concat(wlasne.map(zWlasnego));
+
   const razy  = n => (ust[n.id] && ust[n.id].razy  !== undefined) ? ust[n.id].razy  : n.razy;
   const ilosc = n => n.ilosc ? ((ust[n.id] && ust[n.id].ilosc !== undefined) ? ust[n.id].ilosc : n.ilosc.wart) : null;
-  const aktywne = () => NAWYKI.filter(n => razy(n) > 0);
+  const aktywne = () => wszystkie().filter(n => razy(n) > 0);
 
   // ---------- Daty ----------
   function klucz(d) {
@@ -324,7 +381,7 @@
   function rysujUstawienia() {
     const lista = document.getElementById("lista-ustawien");
     lista.innerHTML = "";
-    NAWYKI.forEach(n => {
+    wszystkie().forEach(n => {
       const r = razy(n);
       const box = document.createElement("div");
       box.className = "ust" + (r === 0 ? " wylaczony" : "");
@@ -339,15 +396,97 @@
           () => zmienUst(n, "ilosc", Math.max(o.min, v - o.krok)),
           () => zmienUst(n, "ilosc", Math.min(o.max, v + o.krok))));
       }
+      if (n.wlasny) box.appendChild(przyciskUsun(n));
       lista.appendChild(box);
     });
   }
 
+  // Usuwanie własnego nawyku — z pytaniem „Na pewno?” wewnątrz strony
+  function przyciskUsun(n) {
+    const w = document.createElement("div");
+    w.className = "ust-wiersz";
+    const usun = document.createElement("button");
+    usun.className = "usun";
+    usun.textContent = "🗑 Usuń ten nawyk";
+    usun.onclick = () => {
+      w.innerHTML = '<span class="etykieta">Na pewno usunąć?</span>' +
+        '<span class="licznik"><button class="usun">Tak, usuń</button><button>Nie</button></span>';
+      const [tak, nie] = w.querySelectorAll("button");
+      tak.onclick = () => {
+        wlasne = wlasne.filter(x => x.id !== n.id);
+        delete ust[n.id];
+        zapiszWlasne(); zapiszUst(); rysujUstawienia();
+      };
+      nie.onclick = () => rysujUstawienia();
+      tak.focus();
+    };
+    w.appendChild(usun);
+    return w;
+  }
+
+  // ---------- Ekran dodawania nawyku ----------
+  const IKONY = ["⭐", "📖", "🧘", "🚴", "🥗", "🍎", "🎵", "🎨", "🌱", "🧹", "🐕", "✍️", "🙏", "☀️", "🦷", "🚭"];
+  let nowy = { ikona: IKONY[0], razy: 7 };
+  let skad = "glowny";
+
+  function rysujDodawanie() {
+    const siatka = document.getElementById("wybor-ikony");
+    siatka.innerHTML = "";
+    IKONY.forEach(ik => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = ik;
+      b.setAttribute("aria-pressed", ik === nowy.ikona);
+      b.onclick = () => { nowy.ikona = ik; rysujDodawanie(); };
+      siatka.appendChild(b);
+    });
+    const r = nowy.razy;
+    const pole = document.getElementById("pole-razy");
+    pole.innerHTML = "";
+    pole.appendChild(wierszPlusMinus("<b>Ile razy w tygodniu</b>",
+      r === 7 ? "codziennie" : r + " " + odmien(r, "raz", "razy", "razy"),
+      () => { nowy.razy = Math.max(1, r - 1); rysujDodawanie(); },
+      () => { nowy.razy = Math.min(7, r + 1); rysujDodawanie(); }));
+    pole.querySelectorAll("button").forEach(b => b.type = "button");
+  }
+
+  function otworzDodawanie(zEkranu) {
+    skad = zEkranu;
+    nowy = { ikona: IKONY[0], razy: 7 };
+    document.getElementById("nowa-nazwa").value = "";
+    document.getElementById("nowy-opis").value = "";
+    document.getElementById("blad-nawyku").classList.add("ukryty");
+    pokaz("dodaj");
+    document.getElementById("nowa-nazwa").focus();
+  }
+
+  document.getElementById("formularz-nawyku").addEventListener("submit", e => {
+    e.preventDefault();
+    const nazwa = document.getElementById("nowa-nazwa").value.trim();
+    const opis = document.getElementById("nowy-opis").value.trim();
+    const blad = document.getElementById("blad-nawyku");
+    if (!nazwa) {
+      blad.textContent = "Wpisz nazwę nawyku.";
+      blad.classList.remove("ukryty");
+      document.getElementById("nowa-nazwa").focus();
+      return;
+    }
+    wlasne.push({ id: "wlasny-" + Date.now(), ikona: nowy.ikona, nazwa, opis, razy: nowy.razy });
+    zapiszWlasne();
+    pokaz(skad);
+  });
+  document.getElementById("anuluj-dodawanie").onclick = () => pokaz(skad);
+  document.getElementById("dodaj-z-glownego").onclick = () => otworzDodawanie("glowny");
+  document.getElementById("dodaj-z-ustawien").onclick = () => otworzDodawanie("ustawienia");
+
   function pokaz(ekran) {
     document.getElementById("ekran-glowny").classList.toggle("ukryty", ekran !== "glowny");
     document.getElementById("ekran-ustawien").classList.toggle("ukryty", ekran !== "ustawienia");
+    document.getElementById("ekran-dodaj").classList.toggle("ukryty", ekran !== "dodaj");
     window.scrollTo(0, 0);
-    if (ekran === "glowny") rysuj(); else rysujUstawienia();
+    if (ekran === "glowny") rysuj();
+    else if (ekran === "ustawienia") rysujUstawienia();
+    else rysujDodawanie();
   }
 
   document.getElementById("otworz-ustawienia").onclick = () => pokaz("ustawienia");
